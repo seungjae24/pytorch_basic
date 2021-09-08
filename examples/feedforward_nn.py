@@ -54,15 +54,12 @@ def accuracy(outputs, labels):
 class MnistModel(nn.Module):
     
     def __init__(self, in_size, hidden_size, out_size):
-        
         super().__init__()
         self.linear1 = nn.Linear(in_size, hidden_size)
         self.linear2 = nn.Linear(hidden_size, out_size)
     
     def forward(self, xb):
-
         xb = xb.view(xb.size(0), -1)
-
         out = self.linear1(xb)
         out = F.relu(out)
         out = self.linear2(out)
@@ -101,8 +98,8 @@ train_ds, val_ds = random_split(dataset, [train_size, val_size])
 
 batch_size = 128
 
-train_loader = DataLoader(train_ds, batch_size, shuffle=True, num_workers=4, pin_memory=False)
-val_loader = DataLoader(val_ds, batch_size*2, num_workers=4, pin_memory=False)
+train_loader = DataLoader(train_ds, batch_size, shuffle=True, num_workers=4, pin_memory=True)
+val_loader = DataLoader(val_ds, batch_size*2, num_workers=4, pin_memory=True)
 
 # for images, labels in train_loader:
 #     inputs = images.reshape(-1,784)
@@ -165,4 +162,19 @@ def fit(epochs, lr, model, train_loader, val_loader, opt_func=torch.optim.SGD):
 
 history = [evaluate(model, val_loader)]
 history += fit(5, 0.5, model, train_loader, val_loader)
+history += fit(5, 0.1, model, train_loader, val_loader)
+
+losses = [x['val_loss'] for x in history]
+plt.plot(losses, '-x')
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.title('Loss vs. No. of epochs')
+plt.show()
+
+accuracies = [x['val_acc'] for x in history]
+plt.plot(accuracies, '-x')
+plt.xlabel('epoch')
+plt.ylabel('accuracy')
+plt.title('Accuracy vs. No. of epochs')
+plt.show()
 
